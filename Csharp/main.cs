@@ -40,7 +40,7 @@ namespace HW.BookSearch
                 Console.WriteLine("| 6. Save           |");
                 Console.WriteLine("| 7. Exit           |");
                 Console.WriteLine("=====================");
-                Console.Write("Select from the menu:");
+                Console.Write("Select from the menu: ");
 
                 int option;
                 try
@@ -148,7 +148,42 @@ namespace HW.BookSearch
         ///</summary>
         private void edit()
         {
+            try
+            {
+                Console.Write(">> Select the book to edit: ");
+                int index = Convert.ToInt32(Console.ReadLine());
 
+                if (index < database.Length && !(index < 0))
+                {
+                    Console.WriteLine($"  {(int)BKFIELD.TITLE}. Title");
+                    Console.WriteLine($"  {(int)BKFIELD.AUTHOR}. Author");
+                    Console.WriteLine($"  {(int)BKFIELD.DATE}. Published date");
+                    Console.WriteLine($"  {(int)BKFIELD.PUBLISHER}. Publisher");
+                    Console.WriteLine($"  {(int)BKFIELD.GENRE}. Genre");
+
+                    Console.Write(">> Select the book field to search: ");
+                    int field = Convert.ToInt32(Console.ReadLine());
+                    if (field < (int)BKFIELD.BKFIELD_MAX && !(field < 0))
+                    {
+                        Console.Write(">> Enter a new content for the field: ");
+                        string value = Console.ReadLine();
+
+                        database.edit(index, field, value);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid book field.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Unable to find a book from the index.");
+                }
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Invalid input.");
+            }
         }
 
         ///<summary>
@@ -195,7 +230,8 @@ namespace HW.BookSearch
         ///</summary>
         private void save()
         {
-
+            database.save();
+            Console.WriteLine("Book saved!");
         }
     }
 }

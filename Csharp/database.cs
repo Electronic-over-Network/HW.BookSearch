@@ -35,11 +35,17 @@ namespace HW.BookSearch
             }
         }
 
+        ///<summary>
+        ///책 정보 추가
+        ///</summary>
         public void add(Book book)
         {
             booklist.Add(book);
         }
 
+        ///<summary>
+        ///책 정보 검색
+        ///</summary>
         public void search(int field, string value)
         {
             foreach (var book in booklist)
@@ -65,16 +71,42 @@ namespace HW.BookSearch
             }
         }
 
+        ///<summary>
+        /// 책 정보 수정
+        ///</summary>
         public void edit(int index, int field, string value)
-        { 
+        {
+            string[] arr = new string[(int)BKFIELD.BKFIELD_MAX] { 
+                booklist[index].title, 
+                booklist[index].author,
+                booklist[index].date,
+                booklist[index].publisher,
+                booklist[index].genre,
+            };
 
+            arr[field] = value;
+
+            booklist[index] = new Book()
+            {
+                title = arr[(int)BKFIELD.TITLE],
+                author = arr[(int)BKFIELD.AUTHOR],
+                date = arr[(int)BKFIELD.DATE],
+                publisher = arr[(int)BKFIELD.PUBLISHER],
+                genre = arr[(int)BKFIELD.GENRE],
+            };
         }
 
+        ///<summary>
+        /// 책 정보 제거
+        ///</summary>
         public void remove(int index)
         {
             booklist.RemoveAt(index);
         }
 
+        ///<summary>
+        /// 책 정보 보여주기
+        ///</summary>
         public void show(int index)
         {
             Console.WriteLine($"{index}. {booklist[index].title} ({booklist[index].date})");
@@ -83,12 +115,23 @@ namespace HW.BookSearch
             Console.WriteLine($"  * Publisher: {booklist[index].publisher}");
         }
 
+        ///<summary>
+        /// 책 정보 저장
+        ///</summary>
         public void save()
-        { 
-        
+        {
+            List<string> str = new();
+            foreach (var book in booklist)
+            {
+                str.Add($"{book.title} {book.author} {book.date} {book.publisher} {book.genre}");
+            }
+
+            File.WriteAllLines(filepath, str);
         }
 
-        // 데이터베이스 책 개수
+        ///<summary>
+        ///데이터베이스 책 개수
+        ///</summary>
         public int Length { get { return booklist.Count; } }
     }
 
@@ -112,5 +155,6 @@ namespace HW.BookSearch
         DATE,
         PUBLISHER,
         GENRE,
+        BKFIELD_MAX
     }
 }
