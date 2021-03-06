@@ -70,14 +70,15 @@ class Database:
 
     # 책 정보 보여주기
     def show(self, index):
-        print(f"""{index}. {self.booklist[index].title} ({self.booklist[index].date}년)\
-        \n  * 저자: {self.booklist[index].author}\
-        \n  * 출판사: {self.booklist[index].publisher}\
-        \n  * 장르: {self.booklist[index].genre}""")
+        print(f"""{index}. {self.booklist[index].title} ({self.booklist[index].date})\
+        \n  * Author: {self.booklist[index].author}\
+        \n  * Genre: {self.booklist[index].genre}\
+        \n  * Publisher: {self.booklist[index].publisher}""")
     
     # 책 정보 저장
     def save(self, filepath):
-        npBook = np.ndarray(shape = (self.Length, 5), dtype = '<U16')
+        # 데이터 전부를 받을 수 있도록 '<U32'으로 최대 32 문자를 넘파이에 저장할 수 있게 설정.
+        npBook = np.ndarray(shape = (self.Length, 5), dtype = '<U8')
         for book in self.booklist:
             npBook[self.booklist.index(book), BOOK_TITLE]     = book.title
             npBook[self.booklist.index(book), BOOK_AUTHOR]    = book.author
