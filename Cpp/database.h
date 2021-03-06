@@ -2,6 +2,16 @@
 #include <iostream>
 #include <vector>
 
+enum class BKFIELD
+{
+	TITLE,
+	AUTHOR,
+	DATE,
+	PUBLISHER,
+	GENRE,
+	BKFIELD_MAX
+};
+
 struct Book
 {
 	Book(std::string, std::string, std::string, std::string, std::string);
@@ -13,28 +23,20 @@ struct Book
 	std::string genre;
 };
 
-enum class BOOK_FIELD
-{
-	BOOK_TITLE,
-	BOOK_AUTHOR,
-	BOOK_DATE,
-	BOOK_PUBLISHER,
-	BOOK_GENRE
-};
-
 class Database
 {
 public:
 	Database(std::string);
 	void add(Book);
-	void search(BOOK_FIELD, std::string);
-	void edit();
-	void remove();
+	void search(int, std::string);
+	void edit(int, int, std::string);
+	void remove(int);
 	void show(int);
 	void save();
 	int  length();
 private:
 	std::vector<Book> booklist;
+	std::string filepath;
 };
 
 class Application

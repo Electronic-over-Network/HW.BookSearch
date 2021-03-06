@@ -1,9 +1,18 @@
 #include "database.h"
 #include <fstream>
-#include <string>
+
+Book::Book(std::string title, std::string author, std::string date, std::string publisher, std::string genre)
+{
+	this->title = title;
+	this->author = author;
+	this->date = date;
+	this->publisher = publisher;
+	this->genre = genre;
+}
 
 Database::Database(std::string filepath)
 {
+	this->filepath = filepath;
 	std::ifstream ifile(filepath);
 	std::string title, author, date, publisher, genre;
 	while (ifile)
@@ -24,21 +33,45 @@ void Database::add(Book book)
 	booklist.push_back(book);
 }
 
-void Database::search(BOOK_FIELD field, std::string value)
+void Database::search(int field, std::string value)
 {
 	for (int index = 0; index < length(); index++)
 	{
 		std::string* ptr = reinterpret_cast<std::string*>(&booklist[index]);
-		*(ptr + (static_cast<unsigned long>(field) * sizeof(std::string)));
+		if (value == *(ptr + field))
+		{
+			show(index);
+		}
 	}
+}
+
+void Database::edit(int index, int field, std::string value)
+{
+	std::string* ptr = reinterpret_cast<std::string*>(&booklist[index]);
+	*(ptr + field) = value;
+}
+
+void Database::remove(int index)
+{
+	booklist.erase(booklist.begin() + index);
 }
 
 void Database::show(int index)
 {
-	std::cout << index << ". " << booklist[index].title << " (" << booklist[index].date << "년)" << std::endl
-		<< "  * 저자: " << booklist[index].author << std::endl
-		<< "  * 출판사: " << booklist[index].publisher << std::endl
-		<< "  * 장르: " << booklist[index].genre << std::endl;
+	std::cout << index << ". " << booklist[index].title << " (" << booklist[index].date << ")" << std::endl
+		<< "  * Author: " << booklist[index].author << std::endl
+		<< "  * Genre: " << booklist[index].genre << std::endl
+		<< "  * Publisher: " << booklist[index].publisher << std::endl;
+}
+
+void Database::save()
+{
+	std::ofstream ofile(filepath, std::ofstream::trunc);
+	for (Book book : booklist)
+	{
+		ofile << book.title << " " << book.author << " " << book.date
+			<< " " << book.publisher << " " << book.genre << std::endl;
+	}
 }
 
 int Database::length()
@@ -58,15 +91,17 @@ void Application::SetupUI()
 	{
 		std::cout
 			<< "=====================" << std::endl
-			<< "1. 도서 추가" << std::endl
-			<< "2. 도서 검색" << std::endl
-			<< "3. 도서 수정" << std::endl
-			<< "4. 도서 삭제" << std::endl
-			<< "5. 도서 목록" << std::endl
-			<< "6. 저장" << std::endl
-			<< "7. 나가기" << std::endl
+			<< "|      OPTIONS      |" << std::endl
+			<< "| ----------------- |" << std::endl
+			<< "| 1. Add            |" << std::endl
+			<< "| 2. Search         |" << std::endl
+			<< "| 3. Edit           |" << std::endl
+			<< "| 4. Remove         |" << std::endl
+			<< "| 5. List           |" << std::endl
+			<< "| 6. Save           |" << std::endl
+			<< "| 7. Exit           |" << std::endl
 			<< "=====================" << std::endl
-			<< "메뉴를 선택하세요: ";
+			<< "Select from the menu: ";
 
 		int option;
 		std::cin >> option;
@@ -95,79 +130,117 @@ void Application::SetupUI()
 			save();
 			return;
 		default:
-			std::cout << "잘못된 입력입니다." << std::endl;
+			std::cout << "Invalid input." << std::endl;
 		}
 		std::cout << std::endl;
 	}
-	add();
 }
 
 void Application::add()
 {
 	std::string title, author, date, publisher, genre;
-	
-	std::cout << "도서 제목을 입력하세요: ";
+
+	std::cout << ">> Enter the title: ";
 	std::cin >> title;
 
-	std::cout << "도서 저자를 입력하세요: ";
+	std::cout << ">> Enter the author: ";
 	std::cin >> author;
 
-	std::cout << "도서 출판년도를 입력하세요: ";
+	std::cout << ">> Enter the published date: ";
 	std::cin >> date;
 
-	std::cout << "도서 출판사를 입력하세요: ";
+	std::cout << ">> Enter the publisher: ";
 	std::cin >> publisher;
 
-	std::cout << "도서 장르를 입력하세요: ";
+	std::cout << ">> Enter the genre: ";
 	std::cin >> genre;
 
 	database->add(Book(title, author, date, publisher, genre));
-	std::cout << "도서 추가 완료!" << std::endl;
+	std::cout << "Book added!" << std::endl;
 }
 
 void Application::search()
 {
-	int field; std::string value;
+	int field;
+	std::string value;
 
-	std::cout << "  " << static_cast<int>(BOOK_FIELD::BOOK_TITLE) << ". 제목" << std::endl
-		<< "  " << static_cast<int>(BOOK_FIELD::BOOK_AUTHOR) << ". 저자" << std::endl
-		<< "  " << static_cast<int>(BOOK_FIELD::BOOK_DATE) << ". 출판년도" << std::endl
-		<< "  " << static_cast<int>(BOOK_FIELD::BOOK_PUBLISHER) << ". 출파사" << std::endl
-		<< "  " << static_cast<int>(BOOK_FIELD::BOOK_GENRE) << ". 장르" << std::endl
-		<< "검색할 도서 정보를 입력하세요: ";
+	std::cout << "  " << static_cast<int>(BKFIELD::TITLE) << ". Title" << std::endl
+		<< "  " << static_cast<int>(BKFIELD::AUTHOR) << ". Author" << std::endl
+		<< "  " << static_cast<int>(BKFIELD::DATE) << ". Published date" << std::endl
+		<< "  " << static_cast<int>(BKFIELD::PUBLISHER) << ". Publisher" << std::endl
+		<< "  " << static_cast<int>(BKFIELD::GENRE) << ". Genre" << std::endl
+		<< ">> Select the book field to search: ";
 	std::cin >> field;
-	std::cout << "검색할 도서 정보 내용을 입력하세요: ";
+	std::cout << ">> Enter the book field content to search:";
 	std::cin >> value;
-	
-	database->search(static_cast<BOOK_FIELD>(field), value);
+
+	database->search(field, value);
 }
 
 void Application::edit()
 {
+	int index, field;
+	std::string value;
 
+	std::cout << ">> Select the book to edit: ";
+	std::cin >> index;
+
+	if (index < database->length() && !(index < 0))
+	{
+		std::cout << "  " << static_cast<int>(BKFIELD::TITLE) << ". Title" << std::endl
+			<< "  " << static_cast<int>(BKFIELD::AUTHOR) << ". Author" << std::endl
+			<< "  " << static_cast<int>(BKFIELD::DATE) << ". Published date" << std::endl
+			<< "  " << static_cast<int>(BKFIELD::PUBLISHER) << ". Publisher" << std::endl
+			<< "  " << static_cast<int>(BKFIELD::GENRE) << ". Genre" << std::endl
+			<< ">> Select the book field to search: ";
+		std::cin >> field;
+
+		if (field < static_cast<int>(BKFIELD::BKFIELD_MAX) && !(field < 0))
+		{
+			std::cout << ">> Enter a new content for the field: ";
+				std::cin >> value;
+
+				database->edit(index, field, value);
+		}
+		else
+		{
+			std::cout << "Invalid book field." << std::endl;
+		}
+	}
+	else
+	{
+		std::cout << "Unable to find a book from the index." << std::endl;
+	}
 }
 
 void Application::remove()
 {
+	show();
 
+	int index;
+	std::cout << ">> Select the book to remove: ";
+	std::cin >> index;
+	if (index < database->length() && !(index < 0))
+	{
+		database->remove(index);
+		std::cout << "Book removed!" << std::endl;
+	}
+	else
+	{
+		std::cout << "Unable to find a book from the index." << std::endl;
+	}
 }
 
 void Application::show()
 {
 	for (int index = 0; index < database->length(); index++)
+	{
 		database->show(index);
+	}
 }
 
 void Application::save()
 {
-
-}
-
-Book::Book(std::string title, std::string author, std::string date, std::string publisher, std::string genre)
-{
-	this->title = title;
-	this->author = author;
-	this->date = date;
-	this->publisher = publisher;
-	this->genre = genre;
+	database->save();
+	std::cout << "Book saved!" << std::endl;
 }
