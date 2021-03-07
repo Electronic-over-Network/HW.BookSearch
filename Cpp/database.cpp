@@ -196,33 +196,43 @@ void Application::add()
 // 사용자 인터페이스: 2. 도서 검색
 void Application::search()
 {
-	int field;
-	std::string value;
+		int field;
+		std::string value;
 
-	std::cout << "  " << static_cast<int>(BKFIELD::TITLE) << ". Title" << std::endl
-		<< "  " << static_cast<int>(BKFIELD::AUTHOR) << ". Author" << std::endl
-		<< "  " << static_cast<int>(BKFIELD::DATE) << ". Published date" << std::endl
-		<< "  " << static_cast<int>(BKFIELD::PUBLISHER) << ". Publisher" << std::endl
-		<< "  " << static_cast<int>(BKFIELD::GENRE) << ". Genre" << std::endl
-		<< ">> Select the book field to search: ";
-	std::cin >> field;
-	std::cout << ">> Enter the book field content to search:";
-	std::cin >> value;
+		std::cout << "  " << static_cast<int>(BKFIELD::TITLE) << ". Title" << std::endl
+			<< "  " << static_cast<int>(BKFIELD::AUTHOR) << ". Author" << std::endl
+			<< "  " << static_cast<int>(BKFIELD::DATE) << ". Published date" << std::endl
+			<< "  " << static_cast<int>(BKFIELD::PUBLISHER) << ". Publisher" << std::endl
+			<< "  " << static_cast<int>(BKFIELD::GENRE) << ". Genre" << std::endl
+			<< ">> Select the book field to search: ";
+		std::cin >> field;
+		std::cout << ">> Enter the book field content to search:";
+		std::cin >> value;
 
-	database->search(field, value);
+		if (field < static_cast<int>(BKFIELD::BKFIELD_MAX) && !(field < 0))
+		{
+			std::cout << ">> Enter the book field content to search:";
+			std::cin >> value;
+
+			database->search(field, value);
+		}
+		else
+		{
+			std::cout << "Invalid book field." << std::endl;
+		}
 }
 
 // 사용자 인터페이스: 3. 도서 수정
 void Application::edit()
 {
-	int index, field;
-	std::string value;
-
-	std::cout << ">> Select the book to edit: ";
-	std::cin >> index;
-
-	if (index < database->length() && !(index < 0))
+	try
 	{
+		int index, field;
+		std::string value;
+
+		std::cout << ">> Select the book to edit: ";
+		std::cin >> index;
+
 		std::cout << "  " << static_cast<int>(BKFIELD::TITLE) << ". Title" << std::endl
 			<< "  " << static_cast<int>(BKFIELD::AUTHOR) << ". Author" << std::endl
 			<< "  " << static_cast<int>(BKFIELD::DATE) << ". Published date" << std::endl
@@ -234,16 +244,16 @@ void Application::edit()
 		if (field < static_cast<int>(BKFIELD::BKFIELD_MAX) && !(field < 0))
 		{
 			std::cout << ">> Enter a new content for the field: ";
-				std::cin >> value;
+			std::cin >> value;
 
-				database->edit(index, field, value);
+			database->edit(index, field, value);
 		}
 		else
 		{
 			std::cout << "Invalid book field." << std::endl;
 		}
 	}
-	else
+	catch(const std::out_of_range& e)
 	{
 		std::cout << "Unable to find a book from the index." << std::endl;
 	}
